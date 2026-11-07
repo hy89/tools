@@ -1,0 +1,38 @@
+name: Release
+
+# 推送 v* 标签时：Windows 云端构建 → 打包绿色版 zip → 自动创建 GitHub Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Build
+        run: cargo build --release --manifest-path pdf-unlocker/src-tauri/Cargo.toml
+
+      - name: Assemble portable package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "dist/PDF解锁工具" | Out-Null
+          Copy-Item "pdf-unlocker/src-tauri/target/release/pdf-unlocker.exe" "dist/PDF解锁工具/PDF解锁工具.exe"
+          Copy-Item -Recurse "pdf-unlocker/src-tauri/bin/qpdf" "dist/PDF解锁工具/qpdf"
+          Compress-Archive -Path "dist/PDF解锁工具" -DestinationPath "PDF解锁工具_绿色版.zip"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: PDF解锁工具_绿色版.zip
+          generate_release_notes: true

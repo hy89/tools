@@ -1,0 +1,20 @@
+[package]
+name = "pdf-unlocker"
+version = "1.0.0"
+edition = "2021"
+description = "PDF 权限解锁工具 - 移除 PDF 的权限限制保护（保留打开密码不动）"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rfd = "0.15"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
